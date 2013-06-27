@@ -69,54 +69,25 @@ class HumanPlayer
 			end
 
 			if multiple_moves.length > 1
-				#puts "blah"
 
 				start_pos = start_piece.pos
-				#puts "startpos: #{start_piece.pos}"
 				slide_moves_count = 0
 
 				multiple_moves.each_with_index do |delta, index|
-					#puts "delta: #{delta}"
-					#puts " deletion: #{((delta[0] - start_pos[0]).abs / (index + 1))}"
 					if ((delta[0] - start_pos[0]).abs / (index + 1)) == 1
 						slide_moves_count += 1
-						puts "slidemovescount: #{slide_moves_count}"
 					end
 				end
-				#puts "blablabla: #{slide_moves_count}"
 
 				if slide_moves_count == 0
 					start_piece.perform_moves(multiple_moves)
 				else
 					puts "no slide moves allowed in a chain of multiple moves"
-					raise "asdfasdf"
+					raise
 				end
 
 			end
-
-			# start_pos = start_piece.pos
-			# puts "start_pos.pos: #{start_pos.pos}"
-			# slide_moves_count = 0
-			# multiple_moves.each do |delta|
-			# 	if (delta[0] - start_pos[0]).abs == 1
-			# 		slide_moves_count += 1
-			# 	end
-			# end
 			
-			# if multiple_moves.length > 1 && slide_moves_count > 0
-			# 	puts "you have tried to enter a chain of moves"
-				
-				
-			# 	puts "error!" if slide_moves_count > 0
-			# 	if slide_moves_count > 0
-			# 		puts "you're not allowed to do a chain of moves including a slide move"
-			# 		raise
-			# 	else
-			# 		start_piece.perform_moves(multiple_moves)
-			# 	end
-			# 	puts "you're not allowed to do blablabla"
-			# end
-			puts "out here"
 		rescue 
 			#puts 'there was an error!!!!!!!!'
 			retry
