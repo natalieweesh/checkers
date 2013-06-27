@@ -40,22 +40,22 @@ class HumanPlayer
 			puts
 
 			puts "current player: #{@color}"
-			
-			
+
+
 		begin
 			puts "which piece do you want to move? (e.g. 0,1)"
 			from_pos = gets.chomp.split(",").map {|x| x.to_i}
 
 
 			start_piece = board[from_pos]
-			
+
 			raise StandardError if start_piece.nil?
 			raise StandardError if start_piece.color != @color
 		rescue
 			puts "you must move one of your own pieces"
 			retry
 		end
-			
+
 		begin
 			puts "where do you want to move it to? you can enter multiple coordinates (e.g. 2,0 3,1 4,0)"
 
@@ -63,8 +63,61 @@ class HumanPlayer
 				coord.split(",").map {|x| x.to_i}
 			end
 
-			start_piece.perform_moves(multiple_moves)
-		rescue
+			if multiple_moves.length == 1
+
+				start_piece.perform_moves(multiple_moves)
+			end
+
+			if multiple_moves.length > 1
+				#puts "blah"
+
+				start_pos = start_piece.pos
+				#puts "startpos: #{start_piece.pos}"
+				slide_moves_count = 0
+
+				multiple_moves.each_with_index do |delta, index|
+					#puts "delta: #{delta}"
+					#puts " deletion: #{((delta[0] - start_pos[0]).abs / (index + 1))}"
+					if ((delta[0] - start_pos[0]).abs / (index + 1)) == 1
+						slide_moves_count += 1
+						puts "slidemovescount: #{slide_moves_count}"
+					end
+				end
+				#puts "blablabla: #{slide_moves_count}"
+
+				if slide_moves_count == 0
+					start_piece.perform_moves(multiple_moves)
+				else
+					puts "no slide moves allowed in a chain of multiple moves"
+					raise "asdfasdf"
+				end
+
+			end
+
+			# start_pos = start_piece.pos
+			# puts "start_pos.pos: #{start_pos.pos}"
+			# slide_moves_count = 0
+			# multiple_moves.each do |delta|
+			# 	if (delta[0] - start_pos[0]).abs == 1
+			# 		slide_moves_count += 1
+			# 	end
+			# end
+			
+			# if multiple_moves.length > 1 && slide_moves_count > 0
+			# 	puts "you have tried to enter a chain of moves"
+				
+				
+			# 	puts "error!" if slide_moves_count > 0
+			# 	if slide_moves_count > 0
+			# 		puts "you're not allowed to do a chain of moves including a slide move"
+			# 		raise
+			# 	else
+			# 		start_piece.perform_moves(multiple_moves)
+			# 	end
+			# 	puts "you're not allowed to do blablabla"
+			# end
+			puts "out here"
+		rescue 
 			#puts 'there was an error!!!!!!!!'
 			retry
 		end
@@ -84,7 +137,7 @@ class Board
 
 	def duplicate_board
 		board2 = Board.new #board 2 is the duplicated board
-		
+
 		8.times do |row|
 			8.times do |col|
 				position = [row,col]
@@ -173,7 +226,7 @@ class Board
 		top_line += pretty_board.split("\n").map.each_with_index do |line, i|
 			i.to_s + " " + line
 		end.join("\n")
-	
+
 
 	end	
 
@@ -184,7 +237,7 @@ class Board
 		@board[i][j] = piece
 	end
 
-	
+
 end
 
 class Piece
@@ -197,7 +250,7 @@ class Piece
 		@color, @board, @pos, @king = color, board, pos, king
 		@board[pos] = self
 	end
-	
+
 	def symbols
 		if @king
 			return {:red => ' ♛ '.colorize(:red), :black => ' ♛ '}
@@ -307,7 +360,7 @@ class Piece
 		if slide_moves(to_pos).include?(to_pos)
 			#actually perform the move
 			@board[to_pos] = self #put this piece in the new location
-			
+
 			@board[self.pos] = nil #make its original location empty
 			self.pos = to_pos #make sure the piece has its new position in memory
 			self.king_me? #make it a king if it reached the last row
