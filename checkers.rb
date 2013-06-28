@@ -4,10 +4,15 @@ require 'colorize'
 class InvalidMoveError < StandardError
 end
 
+#REV: you should set your textmate program to use spaces instead of tabs
+#so that they show up correctly when the code is viewed on github.
+
 class Game
 
 	attr_reader :board
 
+#REV: could you have @current_player be equal to a HumanPlayer object
+#instead of the key to access a HumanPlayer in the hash?
 	def initialize
 		@board = Board.new
 		@players = {
@@ -17,6 +22,8 @@ class Game
 		@current_player = :red
 	end
 
+
+#REV: where do you check for game end?
 	def play
 		while true
 			@players[@current_player].play_turn(@board)
@@ -33,6 +40,8 @@ class HumanPlayer
 		@color = color
 	end
 
+#REV: play_turn needs to be split up into multiple methods; the while loop,
+#begin-rescue-end blocks, and nested ifs are too hard to read.
 	def play_turn(board)
 		while true
 			puts
@@ -41,6 +50,9 @@ class HumanPlayer
 
 			puts "current player: #{@color}"
 
+#REV: instead of having multiple begin-rescue-retry-end blocks, 
+#you can raise errors from lower methods and catch them all 
+#in a single, higher-level begin-rescue-retry-end.
 
 		begin
 			puts "which piece do you want to move? (e.g. 0,1)"
@@ -144,6 +156,7 @@ class Board
 					next if col.even?
 					piece = Piece.new(color, self, [row,col])
 				end
+#REV: rows are always even or odd, so you can use else instead of elsif
 			elsif row.odd?
 				8.times do |col|
 					next if col.odd?
@@ -153,6 +166,8 @@ class Board
 		end
 
 	end
+
+#REV: Great little methods ([], within_bounds?, and empty?)
 
 	def [](pos)
 		raise "invalid pos" unless within_bounds?(pos)
@@ -171,6 +186,8 @@ class Board
 		self[pos].nil?
 	end
 
+#REV: render could be refactored to make the loops and if statements simpler,
+#or at least easier to read.
 	def render
 
 		pretty_board = @board.map.each_with_index do |row, i|
@@ -232,6 +249,10 @@ class Piece
 	def render
 		symbols[color]
 	end
+
+#REV: there seems to be a lot of repetition in slide_moves, jump_moves, and the
+#king versions of the two methods. also, they're all large methods, so they
+#could be split into more, smaller methods anyway.
 
 	def slide_moves(to_pos)
 		if @king
@@ -327,6 +348,7 @@ class Piece
 
 	end
 
+#REV: the comments in perform_slide aren't needed
 	def perform_slide(to_pos)
 		if slide_moves(to_pos).include?(to_pos)
 			#actually perform the move
@@ -364,6 +386,8 @@ class Piece
 		eaten_pos = [to_pos[0] - dx, to_pos[1] - dy]
 	end
 
+#REV: the comment next to perform_moves! should be in a new line 
+#(or could be deleted)
 	def perform_moves!(move_sequence) #move sequence is an array of arrays and each array is the next new positition to move the piece to
 		move_sequence.each do |next_pos|
 			self.perform_jump_or_slide(next_pos)
